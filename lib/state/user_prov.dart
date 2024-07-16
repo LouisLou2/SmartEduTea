@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:smart_edu_tea/handler/auth_handler.dart';
 
 class UserProv extends ChangeNotifier{
-  String? _token;
-  String? get token => _token;
-  set token(String? token){
-    _token = token;
-    notifyListeners();
+  late String token;
+
+  void init(){
+    // after setToken
+    token = AuthHandler.getToken();
   }
-  UserProv({String? token}):_token = token;
 }

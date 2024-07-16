@@ -1,10 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
+import 'package:smart_edu_tea/const/business_const.dart';
+import 'package:smart_edu_tea/data/basic_data.dart';
 import 'package:smart_edu_tea/entity/general/option_section.dart';
 import 'package:smart_edu_tea/extension/context_extension.dart';
+import 'package:smart_edu_tea/handler/course_sched_handler.dart';
 import 'package:smart_edu_tea/presentation/widget/text_list.dart';
+import 'package:smart_edu_tea/state/course_sched_prov.dart';
+import 'package:smart_edu_tea/state/prov_manager.dart';
 import 'package:time_planner/time_planner.dart';
 
 import '../../entity/general/tuple2.dart';
@@ -20,28 +26,33 @@ class TeacherSched extends StatefulWidget{
 
 class _TeacherSchedState extends State<TeacherSched>{
 
+  final cProv = ProvManager.courseSchedProv;
   late List<Term> termList;
-
-  late OptionSection optionSection;
+  late OptionSection YtOptions;
+  late OptionSection WOptions;
 
   @override
   void initState(){
-    termList = [
-      Term(year: 2020, term: false, weekNum: 16),
-      Term(year: 2020, term: true, weekNum: 16),
-      Term(year: 2021, term: false, weekNum: 16),
-      Term(year: 2021, term: true, weekNum: 16),
-      Term(year: 2022, term: false, weekNum: 16),
-      Term(year: 2022, term: true, weekNum: 16),
-      Term(year: 2023, term: false, weekNum: 16),
-      Term(year: 2023, term: true, weekNum: 16),
-      Term(year: 2024, term: false, weekNum: 16),
-      Term(year: 2024, term: true, weekNum: 16),
-      Term(year: 2025, term: false, weekNum: 16),
-      Term(year: 2025, term: true, weekNum: 16),
-    ];
-    optionSection = OptionSection.fromTerm(termList);
+    setYearTermSection();
+    YtOptions = OptionSection.fromTerm(termList);
+    WOptions = OptionSection.fromWeek(BusinessConst.weeksPerTerm);
     super.initState();
+  }
+
+  void setYearTermSection(){
+    int yearFrom = BasicData.earliestTermYear;
+    int yearTo = BasicData.nowYear;
+    termList = [];
+    for(int i = yearFrom;i<=yearTo;++i){
+      termList.add(Term(year: i, term: false,));
+      termList.add(Term(year: i, term: true,));
+    }
+  }
+
+  Tuple2<int,bool> getYearTerm(int index){
+    int year = termList[index].year;
+    bool term = termList[index].term;
+    return Tuple2<int,bool>(year,term);
   }
 
   @override
@@ -74,13 +85,14 @@ class _TeacherSchedState extends State<TeacherSched>{
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                options: getTextList([optionSection], context,),
+                options: getTextList([YtOptions], context,),
                 onChanged: (value) {
-                  print('@@@@@@@@@@@@@@$value');
-                },
+                  final yearTerm=getYearTerm(value.item2);
+                  cProv.setYearTerm(yearTerm.item1, yearTerm.item2);
+                 },
                 selectedOptionBuilder: (BuildContext context, Tuple2<int, int> value) {
                   return Text(
-                    optionSection.options[value.item2],
+                    YtOptions.options[value.item2],
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w500,
@@ -96,13 +108,13 @@ class _TeacherSchedState extends State<TeacherSched>{
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                options: getTextList([optionSection], context,),
+                options: getTextList([YtOptions], context,),
                 onChanged: (value) {
-                  print('@@@@@@@@@@@@@@$value');
+                  cProv.setWeek(value.item2);
                 },
                 selectedOptionBuilder: (BuildContext context, Tuple2<int, int> value) {
                   return Text(
-                    optionSection.options[value.item2],
+                    YtOptions.options[value.item2],
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w500,
@@ -110,19 +122,37 @@ class _TeacherSchedState extends State<TeacherSched>{
                   );
                 },
               ),
+              OutlinedButton(
+                onPressed: (){
+                  CourseSchedHandler.updateCourseUsingProv();
+                },
+                child: Text(
+                  'Inquire',
+                  style: context.theme.textTheme.bodyMedium?.copyWith(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
         Expanded(
           child:  Padding(
             padding: EdgeInsets.only(left: 25.w, right: 60.w),
-            child: getCourseSchedule(),
+            child: Selector<CourseSchedProv, int>(
+              selector: (context, prov) => prov.tasks.length,
+              shouldRebuild: (prev, next) => true,
+              builder: (context, week, child){
+                return getCourseSchedule(cProv.tasks);
+              },
+            ),
           ),
         )
       ],
     );
   }
-  Widget getCourseSchedule(){
+  Widget getCourseSchedule(List<TimePlannerTask> tasks){
     return TimePlanner(
       setTimeOnAxis: false,
       style: TimePlannerStyle(
@@ -176,24 +206,7 @@ class _TeacherSchedState extends State<TeacherSched>{
           ),
         ),
       ],
-      tasks: [
-        TimePlannerTask(
-          // background color for task
-          color: Colors.purple,
-          // day: Index of header, hour: Task will be begin at this hour
-          // minutes: Task will be begin at this minutes
-          dateTime: TimePlannerDateTime(day: 0, hour: 8, minutes: 30),
-          // Minutes duration of task
-          minutesDuration: 120,
-          // Days duration of task (use for multi days task)
-          daysDuration: 1,
-          onTap: () {},
-          child: Text(
-            'this is a task',
-            style: TextStyle(color: Colors.grey[350], fontSize: 12),
-          ),
-        ),
-      ],
+      tasks: tasks,
     );
   }
 }

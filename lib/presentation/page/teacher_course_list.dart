@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
+import 'package:smart_edu_tea/entity/course_brief.dart';
 import 'package:smart_edu_tea/extension/context_extension.dart';
+import 'package:smart_edu_tea/handler/course_list_handler.dart';
+import 'package:smart_edu_tea/state/course_list_prov.dart';
+import 'package:smart_edu_tea/state/prov_manager.dart';
 
 import '../../style/style_scheme.dart';
 
@@ -14,6 +19,7 @@ class TeacherCourseList extends StatefulWidget {
 
 class _TeacherCourseListState extends State<TeacherCourseList> with TickerProviderStateMixin{
 
+  final CourseListProv _courseListProv = ProvManager.courseListProv;
   late TabController _tabController;
 
   @override
@@ -23,6 +29,9 @@ class _TeacherCourseListState extends State<TeacherCourseList> with TickerProvid
       length: 3,
       vsync: this,
     );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      CourseListHandler.updateCourseList();
+    });
   }
 
   @override
@@ -127,264 +136,270 @@ class _TeacherCourseListState extends State<TeacherCourseList> with TickerProvid
               ),
             ),
             Expanded(
-              child: ListView(
-                children: [
-                  ...List.generate (5,
-                        (index)=> Padding(
-                      padding: EdgeInsets.only(
-                        left: 20.w,
-                        right: 40.w,
-                        top: 15.h,
-                        bottom: 15.h,
-                      ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: context.theme.colorScheme.surface,
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(10),
-                          ),
-                          border: Border.all(
-                            color: context.theme.colorScheme.outlineVariant,
-                            width: 0.5,
-                          ),
+              child: Selector<CourseListProv, int>(
+                selector: (context, prov) => prov.courses.length,
+                shouldRebuild: (prev, next) => true,
+                builder: (_,__,___){
+                  return ListView.builder(
+                    itemCount: _courseListProv.courses.length,
+                    itemBuilder: (context,index){
+                      CourseBrief cb = _courseListProv.courses[index];
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          left: 20.w,
+                          right: 40.w,
+                          top: 15.h,
+                          bottom: 15.h,
                         ),
-                        clipBehavior: Clip.hardEdge,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
-                              child: Wrap(
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                children: [
-                                  Text(
-                                    '#42543 - ',
-                                    style: TextStyle(
-                                      fontSize: 20.sp,
-                                      letterSpacing: -0.5,
-                                      fontWeight: FontWeight.w400,
-                                      color: context.theme.colorScheme.outline,
-                                      fontFamily: StyleScheme.engFontFamily,
-                                    ),
-                                  ),
-                                  Text(
-                                    ' Computer Networking',
-                                    style: TextStyle(
-                                      fontSize: 20.sp,
-                                      letterSpacing: -0.5,
-                                      wordSpacing: 1.5,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: StyleScheme.engFontFamily,
-                                    ),
-                                  ),
-                                  SizedBox(width: 10.w,),
-                                  Chip(
-                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
-                                    surfaceTintColor: Colors.transparent,
-                                    side: const BorderSide(
-                                      color: Color(0xff4e34d4),
-                                      width: 1,
-                                    ),
-                                    label: Text(
-                                      'Major Fundamental',
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: context.theme.colorScheme.surface,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                            border: Border.all(
+                              color: context.theme.colorScheme.outlineVariant,
+                              width: 0.5,
+                            ),
+                          ),
+                          clipBehavior: Clip.hardEdge,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
+                                child: Wrap(
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    Text(
+                                      '#${cb.courseInstId} - ',
                                       style: TextStyle(
-                                        fontSize: 15.sp,
+                                        fontSize: 20.sp,
+                                        letterSpacing: -0.5,
                                         fontWeight: FontWeight.w400,
-                                        color: const Color(0xff4e34d4),
+                                        color: context.theme.colorScheme.outline,
                                         fontFamily: StyleScheme.engFontFamily,
                                       ),
                                     ),
-                                    backgroundColor: const Color(0xff4e34d4).withOpacity(0.1),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                left: 20.w,
-                                right: 20.w,
-                                bottom: 15.h,
-                              ),
-                              child: Text(
-                                'Computer networking refers to the practice of interconnecting multiple computing devices to share resources, exchange data, and communicate. Networks can be small, like a local area network (LAN) within a single building, or large, spanning vast distances like...',
-                                style: TextStyle(
-                                  fontSize: 16.sp,
-                                  letterSpacing: -0.5,
-                                  wordSpacing: 1.2,
-                                  fontWeight: FontWeight.w400,
-                                  color: context.theme.colorScheme.outline.withOpacity(0.9),
-                                  fontFamily: StyleScheme.engFontFamily,
-                                ),
-                              ),
-                            ),
-                            Divider(
-                              color: context.theme.colorScheme.outlineVariant,
-                              thickness: 0.5,
-                              height: 0.5.h,
-                            ),
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
-                              color: context.theme.colorScheme.surfaceContainerHigh,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Wrap(
-                                    children: [
-                                      Chip(
-                                        avatar: CircleAvatar(
-                                          backgroundColor: Colors.transparent,
-                                          child: Icon(
-                                            LucideIcons.timer,
-                                            color: context.theme.colorScheme.outline,
-                                            size: 20.sp,
-                                          ),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-                                        labelPadding: const EdgeInsets.only(right: 5),
-                                        surfaceTintColor: Colors.transparent,
-                                        side: BorderSide(
-                                          color: context.theme.colorScheme.outlineVariant,
-                                          width: 1,
-                                        ),
-                                        label: Wrap(
-                                          crossAxisAlignment: WrapCrossAlignment.center,
-                                          spacing: 5,
-                                          children: [
-                                            Text(
-                                              'Course Hours',
-                                              style: TextStyle(
-                                                fontSize: 15.sp,
-                                                fontWeight: FontWeight.w400,
-                                                color: context.theme.colorScheme.outline,
-                                                fontFamily: StyleScheme.engFontFamily,
-                                              ),
-                                            ),
-                                            Text(
-                                              '18',
-                                              style: TextStyle(
-                                                fontSize: 18.sp,
-                                                fontWeight: FontWeight.w500,
-                                                fontFamily: StyleScheme.engFontFamily,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(width: 15.w,),
-                                      Chip(
-                                        avatar: CircleAvatar(
-                                          backgroundColor: Colors.transparent,
-                                          child: Icon(
-                                            LucideIcons.award,
-                                            color: context.theme.colorScheme.outline,
-                                            size: 20.sp,
-                                          ),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-                                        labelPadding: const EdgeInsets.only(right: 5),
-                                        surfaceTintColor: Colors.transparent,
-                                        side: BorderSide(
-                                          color: context.theme.colorScheme.outlineVariant,
-                                          width: 1,
-                                        ),
-                                        label: Wrap(
-                                          crossAxisAlignment: WrapCrossAlignment.center,
-                                          spacing: 5,
-                                          children: [
-                                            Text(
-                                              'Credit',
-                                              style: TextStyle(
-                                                fontSize: 15.sp,
-                                                fontWeight: FontWeight.w400,
-                                                color: context.theme.colorScheme.outline,
-                                                fontFamily: StyleScheme.engFontFamily,
-                                              ),
-                                            ),
-                                            Text(
-                                              '3.5',
-                                              style: TextStyle(
-                                                fontSize: 18.sp,
-                                                fontWeight: FontWeight.w500,
-                                                fontFamily: StyleScheme.engFontFamily,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(width: 15.w,),
-                                      Chip(
-                                        avatar: CircleAvatar(
-                                          backgroundColor: Colors.transparent,
-                                          child: Icon(
-                                            Icons.data_usage_rounded,
-                                            color: context.theme.colorScheme.outline,
-                                            size: 20.sp,
-                                          ),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-                                        labelPadding: const EdgeInsets.only(right: 5),
-                                        surfaceTintColor: Colors.transparent,
-                                        side: BorderSide(
-                                          color: context.theme.colorScheme.outlineVariant,
-                                          width: 1,
-                                        ),
-                                        label: Wrap(
-                                          crossAxisAlignment: WrapCrossAlignment.center,
-                                          spacing: 5,
-                                          children: [
-                                            Text(
-                                              'Progress',
-                                              style: TextStyle(
-                                                fontSize: 15.sp,
-                                                fontWeight: FontWeight.w400,
-                                                color: context.theme.colorScheme.outline,
-                                                fontFamily: StyleScheme.engFontFamily,
-                                              ),
-                                            ),
-                                            Text(
-                                              '76%',
-                                              style: TextStyle(
-                                                fontSize: 18.sp,
-                                                fontWeight: FontWeight.w500,
-                                                fontFamily: StyleScheme.engFontFamily,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  OutlinedButton(
-                                    onPressed: (){},
-                                    style: OutlinedButton.styleFrom(
-                                      side: BorderSide(
-                                        color: index.isOdd ? const Color(0xff4e34d4): context.theme.colorScheme.primary,
-                                        width: 1,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                    ),
-                                    child: Text(
-                                      index.isOdd ? 'View Detail' : 'Upload Score',
+                                    Text(
+                                      ' ${cb.name}',
                                       style: TextStyle(
-                                        fontSize: 16.sp,
+                                        fontSize: 20.sp,
+                                        letterSpacing: -0.5,
+                                        wordSpacing: 1.5,
                                         fontWeight: FontWeight.w500,
                                         fontFamily: StyleScheme.engFontFamily,
-                                        color: index.isOdd ? const Color(0xff4e34d4): context.theme.colorScheme.primary,
                                       ),
                                     ),
-                                  ),
-                                ],
+                                    SizedBox(width: 10.w,),
+                                    Chip(
+                                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
+                                      surfaceTintColor: Colors.transparent,
+                                      side: const BorderSide(
+                                        color: Color(0xff4e34d4),
+                                        width: 1,
+                                      ),
+                                      label: Text(
+                                        cb.courseType,
+                                        style: TextStyle(
+                                          fontSize: 15.sp,
+                                          fontWeight: FontWeight.w400,
+                                          color: const Color(0xff4e34d4),
+                                          fontFamily: StyleScheme.engFontFamily,
+                                        ),
+                                      ),
+                                      backgroundColor: const Color(0xff4e34d4).withOpacity(0.1),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  left: 20.w,
+                                  right: 20.w,
+                                  bottom: 15.h,
+                                ),
+                                child: Text(
+                                  'Computer networking refers to the practice of interconnecting multiple computing devices to share resources, exchange data, and communicate. Networks can be small, like a local area network (LAN) within a single building, or large, spanning vast distances like...',
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    letterSpacing: -0.5,
+                                    wordSpacing: 1.2,
+                                    fontWeight: FontWeight.w400,
+                                    color: context.theme.colorScheme.outline.withOpacity(0.9),
+                                    fontFamily: StyleScheme.engFontFamily,
+                                  ),
+                                ),
+                              ),
+                              Divider(
+                                color: context.theme.colorScheme.outlineVariant,
+                                thickness: 0.5,
+                                height: 0.5.h,
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
+                                color: context.theme.colorScheme.surfaceContainerHigh,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Wrap(
+                                      children: [
+                                        Chip(
+                                          avatar: CircleAvatar(
+                                            backgroundColor: Colors.transparent,
+                                            child: Icon(
+                                              LucideIcons.timer,
+                                              color: context.theme.colorScheme.outline,
+                                              size: 20.sp,
+                                            ),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                                          labelPadding: const EdgeInsets.only(right: 5),
+                                          surfaceTintColor: Colors.transparent,
+                                          side: BorderSide(
+                                            color: context.theme.colorScheme.outlineVariant,
+                                            width: 1,
+                                          ),
+                                          label: Wrap(
+                                            crossAxisAlignment: WrapCrossAlignment.center,
+                                            spacing: 5,
+                                            children: [
+                                              Text(
+                                                'Course Hours',
+                                                style: TextStyle(
+                                                  fontSize: 15.sp,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: context.theme.colorScheme.outline,
+                                                  fontFamily: StyleScheme.engFontFamily,
+                                                ),
+                                              ),
+                                              Text(
+                                                cb.totalClassHour.toString(),
+                                                style: TextStyle(
+                                                  fontSize: 18.sp,
+                                                  fontWeight: FontWeight.w500,
+                                                  fontFamily: StyleScheme.engFontFamily,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(width: 15.w,),
+                                        Chip(
+                                          avatar: CircleAvatar(
+                                            backgroundColor: Colors.transparent,
+                                            child: Icon(
+                                              LucideIcons.award,
+                                              color: context.theme.colorScheme.outline,
+                                              size: 20.sp,
+                                            ),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                                          labelPadding: const EdgeInsets.only(right: 5),
+                                          surfaceTintColor: Colors.transparent,
+                                          side: BorderSide(
+                                            color: context.theme.colorScheme.outlineVariant,
+                                            width: 1,
+                                          ),
+                                          label: Wrap(
+                                            crossAxisAlignment: WrapCrossAlignment.center,
+                                            spacing: 5,
+                                            children: [
+                                              Text(
+                                                'Credit',
+                                                style: TextStyle(
+                                                  fontSize: 15.sp,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: context.theme.colorScheme.outline,
+                                                  fontFamily: StyleScheme.engFontFamily,
+                                                ),
+                                              ),
+                                              Text(
+                                                cb.creditStr,
+                                                style: TextStyle(
+                                                  fontSize: 18.sp,
+                                                  fontWeight: FontWeight.w500,
+                                                  fontFamily: StyleScheme.engFontFamily,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(width: 15.w,),
+                                        Chip(
+                                          avatar: CircleAvatar(
+                                            backgroundColor: Colors.transparent,
+                                            child: Icon(
+                                              Icons.data_usage_rounded,
+                                              color: context.theme.colorScheme.outline,
+                                              size: 20.sp,
+                                            ),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                                          labelPadding: const EdgeInsets.only(right: 5),
+                                          surfaceTintColor: Colors.transparent,
+                                          side: BorderSide(
+                                            color: context.theme.colorScheme.outlineVariant,
+                                            width: 1,
+                                          ),
+                                          label: Wrap(
+                                            crossAxisAlignment: WrapCrossAlignment.center,
+                                            spacing: 5,
+                                            children: [
+                                              Text(
+                                                'Progress',
+                                                style: TextStyle(
+                                                  fontSize: 15.sp,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: context.theme.colorScheme.outline,
+                                                  fontFamily: StyleScheme.engFontFamily,
+                                                ),
+                                              ),
+                                              Text(
+                                                '76%',
+                                                style: TextStyle(
+                                                  fontSize: 18.sp,
+                                                  fontWeight: FontWeight.w500,
+                                                  fontFamily: StyleScheme.engFontFamily,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    OutlinedButton(
+                                      onPressed: (){},
+                                      style: OutlinedButton.styleFrom(
+                                        side: BorderSide(
+                                          color: index.isOdd ? const Color(0xff4e34d4): context.theme.colorScheme.primary,
+                                          width: 1,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                      ),
+                                      child: Text(
+                                        index.isOdd ? 'View Detail' : 'Upload Score',
+                                        style: TextStyle(
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.w500,
+                                          fontFamily: StyleScheme.engFontFamily,
+                                          color: index.isOdd ? const Color(0xff4e34d4): context.theme.colorScheme.primary,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                ],
+                      );
+                    }
+                  );
+                },
               ),
             ),
           ],

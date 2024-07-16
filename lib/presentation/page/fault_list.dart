@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:smart_edu_tea/extension/context_extension.dart';
 import 'package:smart_edu_tea/presentation/page/side_sheet_example.dart';
+import 'package:smart_edu_tea/state/fault_record_prov.dart';
+import 'package:smart_edu_tea/state/prov_manager.dart';
+import 'package:smart_edu_tea/util/format_util.dart';
 
 import '../../../style/style_scheme.dart';
 
@@ -14,7 +18,7 @@ class TeacherFaultList extends StatefulWidget {
 }
 
 class _TeacherFaultListState extends State<TeacherFaultList> with TickerProviderStateMixin{
-
+  final FaultRecordProv faultRecordProv = ProvManager.faultReportProv;
   late TabController _tabController;
 
   @override
@@ -24,6 +28,10 @@ class _TeacherFaultListState extends State<TeacherFaultList> with TickerProvider
       length: 4,
       vsync: this,
     );
+    // 在initState中加载数据
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      faultRecordProv.fetchFaultReport(0);
+    });
   }
 
   @override
@@ -145,238 +153,251 @@ class _TeacherFaultListState extends State<TeacherFaultList> with TickerProvider
                       ],
                     ),
                   ),
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        ...List.generate (5,
-                              (index)=> Padding(
-                            padding: EdgeInsets.only(
-                              left: 20.w,
-                              right: 40.w,
-                              top: 15.h,
-                            ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: context.theme.colorScheme.surface,
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
-                                border: Border.all(
-                                  color: context.theme.colorScheme.outlineVariant,
-                                  width: 0.5,
-                                ),
-                              ),
-                              clipBehavior: Clip.hardEdge,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                      left: 20.w,
-                                      right: 20.w,
-                                      top: 15.h,
-                                      bottom: 5.h,
-                                    ),
-                                    child: Wrap(
-                                      crossAxisAlignment: WrapCrossAlignment.center,
-                                      children: [
-                                        Text(
-                                          '#42543 - ',
-                                          style: TextStyle(
-                                            fontSize: 19.sp,
-                                            letterSpacing: -0.5,
-                                            fontWeight: FontWeight.w400,
-                                            color: context.theme.colorScheme.outline,
-                                            fontFamily: StyleScheme.engFontFamily,
-                                          ),
-                                        ),
-                                        Text(
-                                          ' 铁道校区 创业南楼 301',
-                                          style: TextStyle(
-                                            fontSize: 19.sp,
-                                            letterSpacing: -0.5,
-                                            wordSpacing: 1.5,
-                                            fontWeight: FontWeight.w500,
-                                            fontFamily: StyleScheme.cnFontFamily,
-                                          ),
-                                        ),
-                                        SizedBox(width: 10.w,),
-                                        Chip(
-                                          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-                                          surfaceTintColor: Colors.transparent,
-                                          side: const BorderSide(
-                                            color: Color(0xff4e34d4),
-                                            width: 1,
-                                          ),
-                                          label: Text(
-                                            'Pending',
-                                            style: TextStyle(
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w400,
-                                              color: const Color(0xff4e34d4),
-                                              fontFamily: StyleScheme.engFontFamily,
-                                            ),
-                                          ),
-                                          backgroundColor: const Color(0xff4e34d4).withOpacity(0.1),
-                                        ),
-                                      ],
-                                    ),
+                  Selector<FaultRecordProv,bool>(
+                    selector: (context, prov) => prov.isLoading,
+                    shouldRebuild: (prev, next) => prev != next,
+                    builder: (context,loading,_){
+                      if(loading) return const Center(child: CircularProgressIndicator(),);
+                      return Expanded(
+                        child: Selector<FaultRecordProv, int>(
+                          selector: (context, prov) => prov.records.length,
+                          shouldRebuild: (prev, next) => true,
+                          builder: (context, count, child){
+                            return ListView.builder(
+                              itemCount: count,
+                              itemBuilder: (context, index){
+                                final record = faultRecordProv.records[index];
+                                return Padding(
+                                  padding: EdgeInsets.only(
+                                    left: 20.w,
+                                    right: 40.w,
+                                    top: 15.h,
                                   ),
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                      left: 20.w,
-                                      right: 20.w,
-                                      bottom: 15.h,
-                                    ),
-                                    child: Text(
-                                      'Computer networking refers to the practice of interconnecting multiple computing devices to share resources, exchange data, and communicate. Networks can be small, like a local area network (LAN) within a single building, or large, spanning vast distances like...',
-                                      style: TextStyle(
-                                        fontSize: 14.sp,
-                                        letterSpacing: -0.5,
-                                        wordSpacing: 1.2,
-                                        fontWeight: FontWeight.w400,
-                                        color: context.theme.colorScheme.outline.withOpacity(0.9),
-                                        fontFamily: StyleScheme.engFontFamily,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: context.theme.colorScheme.surface,
+                                      borderRadius: const BorderRadius.all(
+                                        Radius.circular(10),
+                                      ),
+                                      border: Border.all(
+                                        color: context.theme.colorScheme.outlineVariant,
+                                        width: 0.5,
                                       ),
                                     ),
-                                  ),
-                                  Divider(
-                                    color: context.theme.colorScheme.outlineVariant,
-                                    thickness: 0.5,
-                                    height: 0.5.h,
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
-                                    color: context.theme.colorScheme.surfaceContainerHigh,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    clipBehavior: Clip.hardEdge,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Wrap(
-                                          children: [
-                                            Chip(
-                                              avatar: CircleAvatar(
-                                                backgroundColor: Colors.transparent,
-                                                child: Icon(
-                                                  LucideIcons.award,
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                            left: 20.w,
+                                            right: 20.w,
+                                            top: 15.h,
+                                            bottom: 5.h,
+                                          ),
+                                          child: Wrap(
+                                            crossAxisAlignment: WrapCrossAlignment.center,
+                                            children: [
+                                              Text(
+                                                '#42543 - ',
+                                                style: TextStyle(
+                                                  fontSize: 19.sp,
+                                                  letterSpacing: -0.5,
+                                                  fontWeight: FontWeight.w400,
                                                   color: context.theme.colorScheme.outline,
-                                                  size: 18.sp,
+                                                  fontFamily: StyleScheme.engFontFamily,
                                                 ),
                                               ),
-                                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
-                                              labelPadding: const EdgeInsets.only(right: 5),
-                                              surfaceTintColor: Colors.transparent,
-                                              side: BorderSide(
-                                                color: context.theme.colorScheme.outlineVariant,
-                                                width: 1,
-                                              ),
-                                              label: Wrap(
-                                                crossAxisAlignment: WrapCrossAlignment.center,
-                                                spacing: 5,
-                                                children: [
-                                                  Text(
-                                                    'Type',
-                                                    style: TextStyle(
-                                                      fontSize: 14.sp,
-                                                      fontWeight: FontWeight.w400,
-                                                      color: context.theme.colorScheme.outline,
-                                                      fontFamily: StyleScheme.engFontFamily,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    'Plumbing',
-                                                    style: TextStyle(
-                                                      fontSize: 15.sp,
-                                                      fontWeight: FontWeight.w500,
-                                                      fontFamily: StyleScheme.engFontFamily,
-                                                      color: const Color(0xff952323),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(width: 15.w,),
-                                            Chip(
-                                              avatar: CircleAvatar(
-                                                backgroundColor: Colors.transparent,
-                                                child: Icon(
-                                                  LucideIcons.timer,
-                                                  color: context.theme.colorScheme.outline,
-                                                  size: 20.sp,
+                                              Text(
+                                                ' ${record.campusName} - ${record.building} - ${record.classroomName}',
+                                                style: TextStyle(
+                                                  fontSize: 19.sp,
+                                                  letterSpacing: -0.5,
+                                                  wordSpacing: 1.5,
+                                                  fontWeight: FontWeight.w500,
+                                                  fontFamily: StyleScheme.cnFontFamily,
                                                 ),
                                               ),
-                                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
-                                              labelPadding: const EdgeInsets.only(right: 5),
-                                              surfaceTintColor: Colors.transparent,
-                                              side: BorderSide(
-                                                color: context.theme.colorScheme.outlineVariant,
-                                                width: 1,
-                                              ),
-                                              label: Wrap(
-                                                crossAxisAlignment: WrapCrossAlignment.center,
-                                                spacing: 5,
-                                                children: [
-                                                  Text(
-                                                    'Report Time',
-                                                    style: TextStyle(
-                                                      fontSize: 14.sp,
-                                                      fontWeight: FontWeight.w400,
-                                                      color: context.theme.colorScheme.outline,
-                                                      fontFamily: StyleScheme.engFontFamily,
-                                                    ),
+                                              SizedBox(width: 10.w,),
+                                              Chip(
+                                                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                                                surfaceTintColor: Colors.transparent,
+                                                side: const BorderSide(
+                                                  color: Color(0xff4e34d4),
+                                                  width: 1,
+                                                ),
+                                                label: Text(
+                                                  '${record.status}',
+                                                  style: TextStyle(
+                                                    fontSize: 14.sp,
+                                                    fontWeight: FontWeight.w400,
+                                                    color: const Color(0xff4e34d4),
+                                                    fontFamily: StyleScheme.engFontFamily,
                                                   ),
-                                                  Text(
-                                                    '2024-07-25',
-                                                    style: TextStyle(
-                                                      fontSize: 15.sp,
-                                                      fontWeight: FontWeight.w500,
-                                                      letterSpacing: -0.7,
-                                                      fontFamily: StyleScheme.engFontFamily,
-                                                    ),
-                                                  ),
-                                                ],
+                                                ),
+                                                backgroundColor: const Color(0xff4e34d4).withOpacity(0.1),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                        OutlinedButton(
-                                          onPressed: (){
-                                            showShadSheet(
-                                              side: ShadSheetSide.right,
-                                              context: context,
-                                              builder: (context) => const EditProfileSheet(side: ShadSheetSide.right,),
-                                            );
-                                          },
-                                          style: OutlinedButton.styleFrom(
-                                            side: const BorderSide(
-                                              color: Color(0xff952323),
-                                              width: 1,
-                                            ),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                            left: 20.w,
+                                            right: 20.w,
+                                            bottom: 15.h,
                                           ),
                                           child: Text(
-                                            'View Detail',
+                                            record.faultDesc,
                                             style: TextStyle(
-                                              fontSize: 16.sp,
-                                              fontWeight: FontWeight.w500,
+                                              fontSize: 14.sp,
+                                              letterSpacing: -0.5,
+                                              wordSpacing: 1.2,
+                                              fontWeight: FontWeight.w400,
+                                              color: context.theme.colorScheme.outline.withOpacity(0.9),
                                               fontFamily: StyleScheme.engFontFamily,
-                                              color: const Color(0xff952323),
                                             ),
+                                          ),
+                                        ),
+                                        Divider(
+                                          color: context.theme.colorScheme.outlineVariant,
+                                          thickness: 0.5,
+                                          height: 0.5.h,
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
+                                          color: context.theme.colorScheme.surfaceContainerHigh,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Wrap(
+                                                children: [
+                                                  Chip(
+                                                    avatar: CircleAvatar(
+                                                      backgroundColor: Colors.transparent,
+                                                      child: Icon(
+                                                        LucideIcons.award,
+                                                        color: context.theme.colorScheme.outline,
+                                                        size: 18.sp,
+                                                      ),
+                                                    ),
+                                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
+                                                    labelPadding: const EdgeInsets.only(right: 5),
+                                                    surfaceTintColor: Colors.transparent,
+                                                    side: BorderSide(
+                                                      color: context.theme.colorScheme.outlineVariant,
+                                                      width: 1,
+                                                    ),
+                                                    label: Wrap(
+                                                      crossAxisAlignment: WrapCrossAlignment.center,
+                                                      spacing: 5,
+                                                      children: [
+                                                        Text(
+                                                          'Type',
+                                                          style: TextStyle(
+                                                            fontSize: 14.sp,
+                                                            fontWeight: FontWeight.w400,
+                                                            color: context.theme.colorScheme.outline,
+                                                            fontFamily: StyleScheme.engFontFamily,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          record.faultType,
+                                                          style: TextStyle(
+                                                            fontSize: 15.sp,
+                                                            fontWeight: FontWeight.w500,
+                                                            fontFamily: StyleScheme.engFontFamily,
+                                                            color: const Color(0xff952323),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  SizedBox(width: 15.w,),
+                                                  Chip(
+                                                    avatar: CircleAvatar(
+                                                      backgroundColor: Colors.transparent,
+                                                      child: Icon(
+                                                        LucideIcons.timer,
+                                                        color: context.theme.colorScheme.outline,
+                                                        size: 20.sp,
+                                                      ),
+                                                    ),
+                                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
+                                                    labelPadding: const EdgeInsets.only(right: 5),
+                                                    surfaceTintColor: Colors.transparent,
+                                                    side: BorderSide(
+                                                      color: context.theme.colorScheme.outlineVariant,
+                                                      width: 1,
+                                                    ),
+                                                    label: Wrap(
+                                                      crossAxisAlignment: WrapCrossAlignment.center,
+                                                      spacing: 5,
+                                                      children: [
+                                                        Text(
+                                                          'Report Time',
+                                                          style: TextStyle(
+                                                            fontSize: 14.sp,
+                                                            fontWeight: FontWeight.w400,
+                                                            color: context.theme.colorScheme.outline,
+                                                            fontFamily: StyleScheme.engFontFamily,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          FormatUtil.ymdStr(record.reportTime),
+                                                          style: TextStyle(
+                                                            fontSize: 15.sp,
+                                                            fontWeight: FontWeight.w500,
+                                                            letterSpacing: -0.7,
+                                                            fontFamily: StyleScheme.engFontFamily,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              OutlinedButton(
+                                                onPressed: (){
+                                                  showShadSheet(
+                                                    side: ShadSheetSide.right,
+                                                    context: context,
+                                                    builder: (context) => const EditProfileSheet(side: ShadSheetSide.right,),
+                                                  );
+                                                },
+                                                style: OutlinedButton.styleFrom(
+                                                  side: const BorderSide(
+                                                    color: Color(0xff952323),
+                                                    width: 1,
+                                                  ),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(8),
+                                                  ),
+                                                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                                                ),
+                                                child: Text(
+                                                  'View Detail',
+                                                  style: TextStyle(
+                                                    fontSize: 16.sp,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontFamily: StyleScheme.engFontFamily,
+                                                    color: const Color(0xff952323),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          ),
+                                );
+                              },
+                            );
+                          },
                         ),
-                      ],
-                    ),
-                  ),
+                      );
+                    },
+                  )
                 ],
               ),
             ),

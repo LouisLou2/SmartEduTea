@@ -8,4 +8,8 @@ class NetworkPathCollector {
   static const faultReportRecord = "/faultReportRecord";
   static const classroomApplyRecord = "/classroomApplyRecord";
   static const couseTable= "/courseTable";
+  static const timePlace = "/basic";
+  static const courseList = "/courseList";
+  /*------------------分类-------------------*/
+  static String getLoginPath() => "www.google.com";
 }
