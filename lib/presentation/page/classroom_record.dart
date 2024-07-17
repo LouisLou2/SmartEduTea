@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:provider/provider.dart';
-import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:smart_edu_tea/extension/context_extension.dart';
 import 'package:smart_edu_tea/state/classroom_apply_prov.dart';
 import 'package:smart_edu_tea/state/prov_manager.dart';
@@ -20,7 +19,6 @@ class ClassroomRecord extends StatefulWidget {
 
 class _ClassroomRecordState extends State<ClassroomRecord> with TickerProviderStateMixin {
   final classroomProv = ProvManager.classroomRecordProvider;
-
   late NumberPaginatorController controller;
 
   final List<PlutoColumn> columns = [
@@ -92,6 +90,10 @@ class _ClassroomRecordState extends State<ClassroomRecord> with TickerProviderSt
   @override
   void initState() {
     super.initState();
+    // 在initState中加载数据
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      classroomProv.newPageAndFetch(0);
+    });
   }
 
   @override

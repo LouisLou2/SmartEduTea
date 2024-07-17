@@ -5,27 +5,27 @@ class BasicData{
   static bool ok=false;
   static final nowYear=DateTime.now().year;
 
-  static late final Campus campus;
+  static late final List<Campus> campusList;
   static late final bool nowTermPart;
   static late final int nowWeek;
   static late final int earliestTermYear;
-  static late final int earliestTermPart;
+  static late final bool earliestTermPart;
   static late final List<School> schools;
 
   static void init({
-    required Campus campus,
-    required int nowWeek,
-    required bool nowTermPart,
-    required int earliestTermYear,
-    required int earliestTermPart,
-    required List<School> schools,
+    required List<Campus> campuses1,
+    required int nowWeek1,
+    required bool nowTermPart1,
+    required int earliestTermYear1,
+    required bool earliestTermPart1,
+    required List<School> schools1,
   }){
-    campus=campus;
-    nowWeek=nowWeek;
-    nowTermPart=nowTermPart;
-    earliestTermYear=earliestTermYear;
-    earliestTermPart=earliestTermPart;
-    schools=schools;
+    campusList=campuses1;
+    nowWeek=nowWeek1;
+    nowTermPart=nowTermPart1;
+    earliestTermYear=earliestTermYear1;
+    earliestTermPart=earliestTermPart1;
+    schools=schools1;
     ok=true;
   }
 }

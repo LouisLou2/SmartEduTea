@@ -37,6 +37,11 @@ class _TeacherSchedState extends State<TeacherSched>{
     YtOptions = OptionSection.fromTerm(termList);
     WOptions = OptionSection.fromWeek(BusinessConst.weeksPerTerm);
     super.initState();
+
+    // 在initState中加载数据
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      CourseSchedHandler.enterCourseSched();
+    });
   }
 
   void setYearTermSection(){

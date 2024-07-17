@@ -11,7 +11,10 @@ class AuthHandler{
   }
 
   static checkToken() {
+    _preferences.setString('token', 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJUR1QtNC1SRXh6UDRXaTZQMG01WnV3QTVUeldBTTNvV0o4ZHVRTUI2RDlXd3dMNnkxR2NuMnp0eGp4UGFwbWg4Vmx2eDBPaHZJLWlaMGpsMmNuNGo5dWQ5NnJiYmQ0cXBaIiwiZXhwIjoxNzIxMTMxMjA2LCJpYXQiOjE3MjExMjc2MDZ9.vKJpFz4LADoNJNjtmgOPFk4aoc4bqvayBZWmfrraDzA');
     String? token = _preferences.getString('token');
+    // !!!!!!!!!!!!!!!!!!!
+    // token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJUR1QtNC1SRXh6UDRXaTZQMG01WnV3QTVUeldBTTNvV0o4ZHVRTUI2RDlXd3dMNnkxR2NuMnp0eGp4UGFwbWg4Vmx2eDBPaHZJLWlaMGpsMmNuNGo5dWQ5NnJiYmQ0cXBaIiwiZXhwIjoxNzIxMTMxMjA2LCJpYXQiOjE3MjExMjc2MDZ9.vKJpFz4LADoNJNjtmgOPFk4aoc4bqvayBZWmfrraDzA';
     if(token==null){
       goToLogin();
       return;

@@ -10,7 +10,7 @@ import '../../entity/general/result.dart';
 import '../manage/net_manager.dart';
 
 class TeacherFaultReportDs {
-  static final _baseDao = NetworkManager.normalDio;
+  static final _baseDao = NetworkManager.normalDio8080;
 
   static Future<Result<List<FaultReportRecord>>> getFaultReportRecord(int status) async {
     try {

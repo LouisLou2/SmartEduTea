@@ -13,11 +13,11 @@ import '../../entity/general/result.dart';
 import '../manage/net_manager.dart';
 
 class TeacherCourseDs{
-  static final _baseDao = NetworkManager.normalDio;
+  static final _baseDao8080 = NetworkManager.normalDio8080;
 
   static Future<Result<ClassroomApplyRecordResp>> getClassroomApplyRecord(int offset, int num) async {
     try{
-      Response response = await _baseDao.get(
+      Response response = await _baseDao8080.get(
         NetworkPathCollector.classroomApplyRecord,
         data: {
           'offset': offset,
@@ -37,7 +37,7 @@ class TeacherCourseDs{
 
   static Future<Result<List<FaultReportRecord>>> getFaultReportRecord(int status) async {
     try{
-      Response response = await _baseDao.get(
+      Response response = await _baseDao8080.get(
         NetworkPathCollector.faultReportRecord,
         data: {
           'status': status,
@@ -61,7 +61,7 @@ class TeacherCourseDs{
 
   static Future<Result<List<CourseTask>> > getCourseTable(int year, bool termPart, int week) async {
     try{
-      Response response = await _baseDao.get(
+      Response response = await _baseDao8080.post(
         NetworkPathCollector.couseTable,
         data: {
           'year': year,
@@ -87,7 +87,7 @@ class TeacherCourseDs{
 
   static Future<Result<List<CourseBrief>>> getCourseBriefList(int year, bool termPart) async {
     try{
-      Response response = await _baseDao.get(
+      Response response = await _baseDao8080.post(
         NetworkPathCollector.courseList,
         data: {
           'year': year,

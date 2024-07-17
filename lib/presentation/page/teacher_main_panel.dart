@@ -11,6 +11,7 @@ import 'package:smart_edu_tea/presentation/widget/num_stat_card.dart';
 import 'package:smart_edu_tea/style/style_scheme.dart';
 import 'package:smart_edu_tea/util/format_util.dart';
 import '../../entity/event.dart';
+import '../../state/prov_manager.dart';
 
 class TeaMainPanel extends StatefulWidget{
   const TeaMainPanel({super.key});
@@ -20,6 +21,7 @@ class TeaMainPanel extends StatefulWidget{
 }
 
 class _TeaMainPanelState extends State<TeaMainPanel> {
+  final uProv = ProvManager.userProv;
 
   List<Color> creditColor=[Colors.green, Colors.blue, Colors.orange, Colors.red];
 
@@ -85,6 +87,7 @@ class _TeaMainPanelState extends State<TeaMainPanel> {
 
   @override
   Widget build(BuildContext context) {
+    final tea = uProv.teacher;
     final stheme= ShadTheme.of(context);
     return Padding(
       padding: EdgeInsets.only(left: 30.w, top: 25.h, right: 10.w),
@@ -119,7 +122,7 @@ class _TeaMainPanelState extends State<TeaMainPanel> {
                             ),
                           ),
                           Text(
-                            "拉娜",
+                            tea.teacherName,
                             style: context.theme.textTheme.titleLarge?.copyWith(
                               letterSpacing: -0.5,
                               fontSize: 30.sp,
@@ -166,10 +169,10 @@ class _TeaMainPanelState extends State<TeaMainPanel> {
                   SizedBox(height: 25.h,),
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
                       image: DecorationImage(
-                        image: AssetImage('assets/image/bg1.jpg'),
+                        image: NetworkImage(tea.picUrl),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -721,8 +724,8 @@ class _TeaMainPanelState extends State<TeaMainPanel> {
                               color: context.theme.colorScheme.primary,
                               width: 2.sp,
                             ),
-                            image:  const DecorationImage(
-                              image: AssetImage('assets/image/aao_admin.png'),
+                            image:  DecorationImage(
+                              image: NetworkImage(tea.picUrl),
                               fit: BoxFit.cover,
                             ),
                             boxShadow: [
@@ -740,14 +743,14 @@ class _TeaMainPanelState extends State<TeaMainPanel> {
                         ),
                         SizedBox(height: 12.h,),
                         Text(
-                          '拉娜',
+                          tea.teacherName,
                           style: context.theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             fontSize: 18.sp,
                           ),
                         ),
                         Text(
-                          '计算机学院 | 副教授',
+                          '${tea.schoolName} | ${tea.title}',
                           style: context.theme.textTheme.titleMedium?.copyWith(
                             fontSize: 15.sp,
                             fontWeight: FontWeight.w500,

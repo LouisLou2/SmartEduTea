@@ -1,15 +1,18 @@
 import '../../const/config.dart';
 
 class NetworkPathCollector {
-  static const String host = Configs.BaseUrl;// server host
-  static const String restfulAPI = "/teacherInfo"; // restful api
-  static const String userApi = "$host$restfulAPI";// dio的baseUrl，客户端一切请求都是基于这个baseUrl的
+  static const String host8080 = Configs.BaseUrl8080;
   /*------------------分类-------------------*/
-  static const faultReportRecord = "/faultReportRecord";
-  static const classroomApplyRecord = "/classroomApplyRecord";
-  static const couseTable= "/courseTable";
-  static const timePlace = "/basic";
-  static const courseList = "/courseList";
+  static const faultReportRecord = "/faultReportRecord";// not ok
+  static const classroomApplyRecord = "/ts/Classroom/getReservation"; // url ok
+  static const couseTable= "/ts/TeacherInfo/courseTable";// url ok
+  static const timePlace = "/tr/files/basicInfo";// url ok
+  static const courseList = "/tr/teacherCourse/courseInfo";// url ok
+
+  static const courseStudents = "/uau/studentCourses/getCourseStudents";
+  static const uploadScores = "/ts/TeacherInfo/uploadScores";
+
+  static const selfInfo = "/ts/TeacherInfo/getTeacherInfo";
   /*------------------分类-------------------*/
   static String getLoginPath() => "www.google.com";
 }

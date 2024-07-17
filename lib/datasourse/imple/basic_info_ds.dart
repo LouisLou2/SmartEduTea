@@ -10,11 +10,11 @@ import '../../helper/global_exception_handler.dart';
 import '../manage/net_path_collector.dart';
 
 class BasicInfoDs{
-  static final _baseDio = NetworkManager.normalDio;
+  static final _baseDio8080 = NetworkManager.normalDio8080;
 
   static Future<Result<PlaceTime>> getTimePlace() async {
     try{
-      Response response = await _baseDio.get(
+      Response response = await _baseDio8080.get(
         NetworkPathCollector.timePlace,
         options: NetworkConfig.json_json,
       );
