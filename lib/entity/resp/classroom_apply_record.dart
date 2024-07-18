@@ -13,7 +13,7 @@ class ClassroomApplyRecordResp{
   factory ClassroomApplyRecordResp.fromJson(Map<String, dynamic> json) {
     return ClassroomApplyRecordResp(
       recordSum: json['recordSum'],
-      records: List<RoomApplyRecord>.from(json['records'].map((e) => RoomApplyRecord.fromJson(e))),
+      records: List<RoomApplyRecord>.from(json['recordVOList'].map((e) => RoomApplyRecord.fromJson(e))),
     );
   }
 }

@@ -48,9 +48,9 @@ class _TeacherSchedState extends State<TeacherSched>{
     int yearFrom = BasicData.earliestTermYear;
     int yearTo = BasicData.nowYear;
     termList = [];
-    for(int i = yearFrom;i<=yearTo;++i){
-      termList.add(Term(year: i, term: false,));
+    for(int i = yearTo;i>=yearFrom;--i){
       termList.add(Term(year: i, term: true,));
+      termList.add(Term(year: i, term: false,));
     }
   }
 
@@ -83,6 +83,7 @@ class _TeacherSchedState extends State<TeacherSched>{
           child: Row(
             children: [
               ShadSelect<Tuple2<int,int>>(
+                initialValue: Tuple2<int,int>(0,0),
                 placeholder: Text(
                   '选择学期',
                   style: context.theme.textTheme.bodyMedium?.copyWith(
@@ -106,6 +107,7 @@ class _TeacherSchedState extends State<TeacherSched>{
                 },
               ),
               ShadSelect<Tuple2<int,int>>(
+                initialValue: Tuple2<int,int>(0,0),
                 placeholder: Text(
                   '选择周',
                   style: context.theme.textTheme.bodyMedium?.copyWith(
@@ -113,13 +115,13 @@ class _TeacherSchedState extends State<TeacherSched>{
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                options: getTextList([YtOptions], context,),
+                options: getTextList([WOptions], context,),
                 onChanged: (value) {
                   cProv.setWeek(value.item2);
                 },
                 selectedOptionBuilder: (BuildContext context, Tuple2<int, int> value) {
                   return Text(
-                    YtOptions.options[value.item2],
+                    WOptions.options[value.item2],
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w500,

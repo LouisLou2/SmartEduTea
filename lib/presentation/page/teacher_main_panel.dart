@@ -169,10 +169,10 @@ class _TeaMainPanelState extends State<TeaMainPanel> {
                   SizedBox(height: 25.h,),
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
                       image: DecorationImage(
-                        image: NetworkImage(tea.picUrl),
+                        image: AssetImage('assets/image/bg1.jpg'),
                         fit: BoxFit.cover,
                       ),
                     ),

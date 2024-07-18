@@ -4,10 +4,12 @@ import 'package:number_paginator/number_paginator.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_edu_tea/extension/context_extension.dart';
+import 'package:smart_edu_tea/presentation/page/error_page.dart';
 import 'package:smart_edu_tea/state/prov_manager.dart';
 import 'package:smart_edu_tea/entity/score.dart';
 import 'package:smart_edu_tea/state/student_score_prov.dart';
 
+import '../../const/data_status.dart';
 import '../../entity/student_brief.dart';
 import '../../style/style_scheme.dart';
 
@@ -97,95 +99,142 @@ class _StudentScoresRecordState extends State<StudentScoresRecord> with TickerPr
   @override
   void initState() {
     super.initState();
+    controller = NumberPaginatorController();
     // 在initState中加载数据
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ssProv.newPageAndFetch(0);
+      ssProv.fetchScores();
     });
   }
 
   @override
   void dispose() {
     controller.dispose();
+    ssProv.clearData();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final mtheme = context.theme;
-    return Selector<StudentScoreProv, bool>(
-      selector: (context, prov) => prov.isLoading,
+    return Selector<StudentScoreProv, DataStatus>(
+      selector: (context, prov) => prov.status,
       shouldRebuild: (prev, next) => prev != next,
-      builder: (context, loading,_){
-        if(loading){
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(left: 30.w, top: 30.h),
-              child: Text(
-                'Student Scores',
-                style: context.theme.textTheme.titleLarge?.copyWith(
-                  fontSize: 30.sp,
-                  fontFamily: StyleScheme.engFontFamily,
-                  letterSpacing: -0.5,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            Expanded(
-              child: Selector<StudentScoreProv, int>(
-                selector: (context, prov) => prov.nowPage,
-                shouldRebuild: (prev, next) => prev != next,
-                builder: (_, __, ___) {
-                  return PlutoGrid(
-                    columns: columns,
-                    rows: getRows(ssProv.students,ssProv.scoresPageList),
-                    onChanged: (PlutoGridOnChangedEvent event) {
-                      print(event);
-                    },
-                  );
-                },
-              ),
-            ),
-            Selector<StudentScoreProv, int>(
-              selector: (context, prov) => prov.totalPage,
-              builder: (_, totalPage, __) {
-                return NumberPaginator(
-                  controller: controller,
-                  numberPages: totalPage,
-                  onPageChange: (int index) {
-                    ssProv.newPageAndFetch(index);
-                  },
-                  initialPage: ssProv.nowPage,
-                  config: NumberPaginatorUIConfig(
-                    height: 64,
-                    buttonShape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(
-                        color: context.theme.colorScheme.outlineVariant,
-                        width: 0.5,
-                      ),
+      builder: (context,status ,_){
+        switch (status) {
+          case DataStatus.initial:
+          case DataStatus.loading:
+            return const Center(child: CircularProgressIndicator());
+          case DataStatus.failure:
+            return ErrorPage(
+              onRetry: ssProv.fetchScores,
+            );
+          case DataStatus.success:
+            return Material(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 30.w, top: 30.h),
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
                     ),
-                    buttonTextStyle: TextStyle(
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: StyleScheme.engFontFamily,
-                    ),
-                    contentPadding: EdgeInsets.all(8.sp),
-                    buttonSelectedForegroundColor: context.theme.colorScheme.onPrimary,
-                    buttonUnselectedForegroundColor: context.theme.colorScheme.onSurface,
-                    buttonUnselectedBackgroundColor: context.theme.colorScheme.surface,
-                    buttonSelectedBackgroundColor: context.theme.colorScheme.primary,
                   ),
-                );
-              },
-            ),
-          ],
-        );
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Student Scores',
+                          style: context.theme.textTheme.titleLarge?.copyWith(
+                            fontSize: 30.sp,
+                            fontFamily: StyleScheme.engFontFamily,
+                            letterSpacing: -0.5,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        OutlinedButton(
+                          onPressed: ssProv.uploadScores,
+                          child: const Text('Upload'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Selector<StudentScoreProv, int>(
+                      selector: (context, prov) => prov.nowPage,
+                      shouldRebuild: (prev, next) => prev != next,
+                      builder: (_, __, ___) {
+                        return Selector<StudentScoreProv,bool>(
+                            selector: (context, prov) => prov.cellEdited,
+                            shouldRebuild: (prev, next) => prev != next,
+                            builder: (_,__,___){
+                              return PlutoGrid(
+                                key: UniqueKey(),
+                                columns: columns,
+                                rows: getRows(ssProv.students,ssProv.scoresPageList),
+                                onChanged: (PlutoGridOnChangedEvent event) {
+                                  if(event.columnIdx==4){
+                                    ssProv.updateScore(event.rowIdx, true, event.value);
+                                  }
+                                  if(event.columnIdx==5){
+                                    ssProv.updateScore(event.rowIdx, false, event.value);
+                                  }
+                                },
+                              );
+                            }
+                        );
+                      },
+                    ),
+                  ),
+                  Selector<StudentScoreProv, int>(
+                    selector: (context, prov) => prov.totalPage,
+                    shouldRebuild: (prev, next) => true,
+                    builder: (_, totalPage, __) {
+                      return NumberPaginator(
+                        controller: controller,
+                        numberPages: totalPage,
+                        onPageChange: (int index) {
+                          if(index == ssProv.nowPage){
+                            return;
+                          }
+                          ssProv.setPage(index);
+                          //TODO:not good
+                          // ssProv.getPage(index);
+                          ssProv.fetchScores();
+                        },
+                        initialPage: ssProv.nowPage,
+                        config: NumberPaginatorUIConfig(
+                          height: 64,
+                          buttonShape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: BorderSide(
+                              color: context.theme.colorScheme.outlineVariant,
+                              width: 0.5,
+                            ),
+                          ),
+                          buttonTextStyle: TextStyle(
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: StyleScheme.engFontFamily,
+                          ),
+                          contentPadding: EdgeInsets.all(8.sp),
+                          buttonSelectedForegroundColor: context.theme.colorScheme.onPrimary,
+                          buttonUnselectedForegroundColor: context.theme.colorScheme.onSurface,
+                          buttonUnselectedBackgroundColor: context.theme.colorScheme.surface,
+                          buttonSelectedBackgroundColor: context.theme.colorScheme.primary,
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            );
+        }
       }
     );
   }

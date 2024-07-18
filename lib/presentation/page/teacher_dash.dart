@@ -12,6 +12,7 @@ import 'package:smart_edu_tea/presentation/page/teacher_main_panel.dart';
 import 'package:smart_edu_tea/presentation/page/teacher_schedule.dart';
 import 'package:smart_edu_tea/presentation/widget/const_widgets/siderbar_header_ac.dart';
 import 'package:smart_edu_tea/presentation/widget/icon_chequer.dart';
+import 'package:smart_edu_tea/state/basic_info_prov.dart';
 import 'package:smart_edu_tea/state/prov_manager.dart';
 import 'package:smart_edu_tea/state/sidebar_prov.dart';
 import 'package:smart_edu_tea/state/user_prov.dart';
@@ -21,6 +22,7 @@ import '../../entity/general/role_enum.dart';
 import '../../entity/ui_tool/sidebar_data.dart';
 import '../../state/page_prov.dart';
 import '../widget/const_widgets/custom_searchbar.dart';
+import 'classroom_record1.dart';
 import 'fault_list.dart';
 
 class TeaDashboard extends StatefulWidget{
@@ -33,6 +35,8 @@ class _TeaDashboardState extends State<TeaDashboard>{
   final TextEditingController _sController = TextEditingController();
   late final SidebarData sidebarData;
   final SidebarProv _sProv = ProvManager.sidebarProv;
+  final bProv = ProvManager.basicDataProv;
+  final uProv = ProvManager.userProv;
 
   List<BarTile> barTiles = [
     BarTile.noSub(
@@ -88,15 +92,26 @@ class _TeaDashboardState extends State<TeaDashboard>{
     _sProv.reset();
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ProvManager.userProv.fetchTeaInfo();
+      bProv.equipBasics();
+      uProv.fetchTeaInfo();
     });
+  }
+
+  DataStatus getStatus(DataStatus status1, DataStatus status2){
+    if(status1 == DataStatus.success && status2 == DataStatus.success){
+      return DataStatus.success;
+    }else if(status1 == DataStatus.failure || status2 == DataStatus.failure){
+      return DataStatus.failure;
+    }else{
+      return DataStatus.loading;
+    }
   }
 
   @override
   Widget build(BuildContext context){
     final mtheme = context.theme;
-    return Selector<UserProv, DataStatus>(
-      selector: (_, prov) => prov.status,
+    return Selector2<UserProv, BasicDataProv, DataStatus>(
+      selector: (_, up, bp) => getStatus(up.status, bp.status),
       shouldRebuild: (pre, next) => pre != next,
       builder: (_,status,__){
         switch(status) {
@@ -107,7 +122,14 @@ class _TeaDashboardState extends State<TeaDashboard>{
             );
           case DataStatus.failure:
             return ErrorPage(
-              onRetry: ProvManager.userProv.fetchTeaInfo,
+              onRetry: (){
+                if(uProv.status == DataStatus.failure){
+                  uProv.fetchTeaInfo();
+                }
+                if(bProv.status == DataStatus.failure){
+                  bProv.equipBasics();
+                }
+              },
             );
           case DataStatus.success:
             return Row(
@@ -272,7 +294,7 @@ class _TeaDashboardState extends State<TeaDashboard>{
                           case 3:
                             return const TeacherFaultList();
                           case 4:
-                            return const ClassroomRecord();
+                            return const ClassroomRecord1();
                           default:
                             return const Center(
                               child: Text('No Page Found'),

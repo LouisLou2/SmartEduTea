@@ -13,10 +13,11 @@ class TeacherFaultReportDs {
   static final _baseDao = NetworkManager.normalDio8080;
 
   static Future<Result<List<FaultReportRecord>>> getFaultReportRecord(int status) async {
+    status=1;
     try {
-      Response response = await _baseDao.get(
+      Response response = await _baseDao.post(
         NetworkPathCollector.faultReportRecord,
-        queryParameters: {
+        data: {
           'status': status,
         },
         options: NetworkConfig.json_json,

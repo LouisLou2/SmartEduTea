@@ -3,14 +3,14 @@ class EduExp {
   DateTime toDate;
   String uniName;
   String majorName;
-  String bechelor;
+  String bachelor;
 
   EduExp({
     required this.fromDate,
     required this.toDate,
     required this.uniName,
     required this.majorName,
-    required this.bechelor,
+    required this.bachelor,
   });
 
   EduExp.fromJson(Map<String, dynamic> json)
@@ -18,5 +18,5 @@ class EduExp {
         toDate = DateTime.parse(json['toDate']),
         uniName = json['uniName'],
         majorName = json['majorName'],
-        bechelor = json['bechelor'];
+        bachelor = json['bachelor'];
 }

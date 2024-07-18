@@ -1,6 +1,6 @@
 class ClassroomInfo{
   int classroomId;
-  int campusName;
+  String campusName;
   String building;
   String classroomName;
 
@@ -20,4 +20,6 @@ class ClassroomInfo{
       classroomName: json['classroomName'],
     );
   }
+
+  String get placeStr=> '$campusName $building $classroomName';
 }

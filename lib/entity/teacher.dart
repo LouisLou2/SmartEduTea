@@ -74,4 +74,8 @@ class Teacher {
       identity: json['identity'],
     );
   }
+
+  String get firstNameLetter{
+    return teacherName[0];
+  }
 }

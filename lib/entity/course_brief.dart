@@ -1,5 +1,5 @@
 class CourseBrief {
-  String courseInstId;
+  int courseInstId;
   String name;
   String courseType;
   String courseCate;

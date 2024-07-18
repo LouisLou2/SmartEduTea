@@ -4,9 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:smart_edu_tea/const/device.dart';
 import 'package:smart_edu_tea/data/web_data.dart';
-import 'package:smart_edu_tea/handler/auth_handler.dart';
 import 'package:smart_edu_tea/init_affairs.dart';
+import 'package:smart_edu_tea/presentation/page/course_detail.dart';
 import 'package:smart_edu_tea/presentation/page/teacher_dash.dart';
+import 'package:smart_edu_tea/presentation/page/upload_score.dart';
 import 'package:smart_edu_tea/state/prov_manager.dart';
 import 'package:smart_edu_tea/style/theme_vault.dart';
 import 'package:toastification/toastification.dart';
@@ -39,9 +40,17 @@ class MainApp extends StatelessWidget{
           ChangeNotifierProvider.value(value: ProvManager.courseSchedProv),
           ChangeNotifierProvider.value(value: ProvManager.courseListProv),
           ChangeNotifierProvider.value(value: ProvManager.faultReportProv),
+          ChangeNotifierProvider.value(value: ProvManager.classroomRecordProvider),
+          ChangeNotifierProvider.value(value: ProvManager.studentScoreProv),
+          ChangeNotifierProvider.value(value: ProvManager.basicDataProv),
+          ChangeNotifierProvider.value(value: ProvManager.courseDetailProv),
         ],
         child: ToastificationWrapper(
           child: ShadApp.material(
+            routes: {
+              '/sscore': (context) => const StudentScoresRecord(),
+              '/course_detail': (context) => const CourseDetailPage(),
+            },
             themeMode: ProvManager.themeProv.mode,
             materialThemeBuilder: (context, theme) {
               if (theme.brightness == Brightness.light) {

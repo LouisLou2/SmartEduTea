@@ -1,4 +1,6 @@
+import 'package:smart_edu_tea/state/basic_info_prov.dart';
 import 'package:smart_edu_tea/state/classroom_apply_prov.dart';
+import 'package:smart_edu_tea/state/course_detail_prov.dart';
 import 'package:smart_edu_tea/state/course_list_prov.dart';
 import 'package:smart_edu_tea/state/page_prov.dart';
 import 'package:smart_edu_tea/state/sidebar_prov.dart';
@@ -19,6 +21,8 @@ class ProvManager {
   static late FaultRecordProv faultReportProv;
   static late ClassroomRecordProv classroomRecordProvider;
   static late StudentScoreProv studentScoreProv;
+  static late BasicDataProv basicDataProv;
+  static late CourseDetailProv courseDetailProv;
 
   static void init(){
     themeProv = ThemeProv();
@@ -30,5 +34,7 @@ class ProvManager {
     faultReportProv = FaultRecordProv();
     classroomRecordProvider = ClassroomRecordProv();
     studentScoreProv = StudentScoreProv();
+    basicDataProv = BasicDataProv();
+    courseDetailProv = CourseDetailProv();
   }
 }

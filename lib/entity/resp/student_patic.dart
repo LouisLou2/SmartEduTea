@@ -8,7 +8,7 @@ class StudentPatic{
 
   factory StudentPatic.fromJson(Map<String, dynamic> json){
     List<StudentBrief> students = [];
-    for (var record in json['students']) {
+    for (var record in json['studentVOList']) {
       students.add(StudentBrief.fromJson(record));
     }
     return StudentPatic(

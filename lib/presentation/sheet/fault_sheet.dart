@@ -3,21 +3,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:smart_edu_tea/extension/context_extension.dart';
 import 'package:smart_edu_tea/presentation/widget/leading_title.dart';
+import 'package:smart_edu_tea/state/prov_manager.dart';
 import 'package:smart_edu_tea/style/style_scheme.dart';
 
-final profile = [
-  (title: 'Name', value: 'Alexandru'),
-  (title: 'Username', value: 'nank1ro'),
-];
-
-class EditProfileSheet extends StatelessWidget {
-  const EditProfileSheet({super.key, required this.side});
+class FaultDetailSheet extends StatelessWidget {
+  FaultDetailSheet({super.key, required this.side});
+  final fProv = ProvManager.faultReportProv;
 
   final ShadSheetSide side;
 
   @override
   Widget build(BuildContext context) {
     final mtheme = context.theme;
+    final report = fProv.chosenRecord;
     return ShadSheet(
       backgroundColor: mtheme.colorScheme.surface,
       constraints: side == ShadSheetSide.left || side == ShadSheetSide.right
@@ -90,7 +88,7 @@ class EditProfileSheet extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      '铁道校区',
+                      report.campusName,
                       style: context.theme.textTheme.titleMedium?.copyWith(
                         fontSize: 17.sp,
                         fontWeight: FontWeight.w500,
@@ -120,7 +118,7 @@ class EditProfileSheet extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      '创业南楼',
+                      report.building,
                       style: StyleScheme.cn_onSuf_500_LPN03(
                         size: 17.sp,
                       ),
@@ -146,7 +144,7 @@ class EditProfileSheet extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      '301',
+                      report.classroomName,
                       style: context.theme.textTheme.titleMedium?.copyWith(
                         fontSize: 17.sp,
                         fontWeight: FontWeight.w500,
@@ -174,7 +172,7 @@ class EditProfileSheet extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      '5 March 2024',
+                      report.reportTimeStr,
                       style: context.theme.textTheme.titleMedium?.copyWith(
                         fontSize: 17.sp,
                         fontWeight: FontWeight.w500,
@@ -215,7 +213,7 @@ class EditProfileSheet extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Plumbing',
+                                report.faultType,
                                 style: context.textTheme.titleMedium?.copyWith(
                                   fontSize: 20.sp,
                                   fontWeight: FontWeight.w500,
@@ -226,9 +224,9 @@ class EditProfileSheet extends StatelessWidget {
                               ),
                               SizedBox(height: 10.h),
                               Text(
-                                'The projector in the classroom is not working properly. The screen is flickering and the image is not clear. The sound is also not working. The projector in the classroom is not working properly. The screen is flickering and the image is not clear. The sound is also not working.',
+                                report.faultDesc,
                                 softWrap: true,
-                                maxLines: 2,
+                                maxLines: 3,
                                 overflow: TextOverflow.ellipsis,
                                 style: context.textTheme.titleMedium?.copyWith(
                                   fontSize: 15.sp,
@@ -256,7 +254,7 @@ class EditProfileSheet extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(left: 10.w),
                 child: Text(
-                  'The projector in the classroom is not working properly. The screen is flickering and the image is not clear. The sound is also not working. The projector in the classroom is not working properly. The screen is flickering and the image is not clear. The sound is also not working.',
+                  report.faultDesc,
                   softWrap: true,
                   maxLines: 5,
                   overflow: TextOverflow.ellipsis,

@@ -10,7 +10,7 @@ class CourseSchedProv with ChangeNotifier {
   List<TimePlannerTask> tasks = [];
 
   void setWeek(int week){
-    selectedWeek = week;
+    selectedWeek = week+1;// index从0开始，但是那里是从1
   }
 
   void setYearTerm(int year, bool term){

@@ -3,7 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:provider/provider.dart';
+import 'package:smart_edu_tea/const/data_status.dart';
 import 'package:smart_edu_tea/extension/context_extension.dart';
+import 'package:smart_edu_tea/presentation/page/error_page.dart';
 import 'package:smart_edu_tea/state/classroom_apply_prov.dart';
 import 'package:smart_edu_tea/state/prov_manager.dart';
 
@@ -18,7 +20,7 @@ class ClassroomRecord extends StatefulWidget {
 }
 
 class _ClassroomRecordState extends State<ClassroomRecord> with TickerProviderStateMixin {
-  final classroomProv = ProvManager.classroomRecordProvider;
+  final claProv = ProvManager.classroomRecordProvider;
   late NumberPaginatorController controller;
 
   final List<PlutoColumn> columns = [
@@ -89,83 +91,147 @@ class _ClassroomRecordState extends State<ClassroomRecord> with TickerProviderSt
 
   @override
   void initState() {
+    controller = NumberPaginatorController();
     super.initState();
     // 在initState中加载数据
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      classroomProv.newPageAndFetch(0);
+      if(urgingStatus(claProv.status)){
+        claProv.fetchRecordList();
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final mtheme = context.theme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.only(left: 30.w, top: 30.h),
-          child: Text(
-            'Classroom Application',
-            style: context.theme.textTheme.titleLarge?.copyWith(
-              fontSize: 30.sp,
-              fontFamily: StyleScheme.engFontFamily,
-              letterSpacing: -0.5,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height - 100.h,
-          ),
-          child: Selector<ClassroomRecordProv, int>(
-            selector: (context, prov) => prov.recordSum,
-            shouldRebuild: (prev, next) => true,
-            builder: (_,__,___){
-              return PlutoGrid(
-                columns: columns,
-                rows: getRows(classroomProv.records),
-              );
-            },
-          ),
-        ),
-        Selector<ClassroomRecordProv, int>(
-          selector: (context, prov) => prov.totalPage,
-          builder: (_, totalPage, __) {
-            return NumberPaginator(
-              controller: controller,
-              // by default, the paginator shows numbers as center content
-              numberPages: totalPage,
-              onPageChange: (int index) {
-                classroomProv.newPageAndFetch(index);
-              },
-              // initially selected index
-              initialPage: classroomProv.nowPage,
-              config: NumberPaginatorUIConfig(
-                // default height is 48
-                height: 64,
-                buttonShape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(
-                    color: context.theme.colorScheme.outlineVariant,
-                    width: 0.5,
+    return Selector<ClassroomRecordProv, DataStatus>(
+      selector: (context, prov) => prov.status,
+      shouldRebuild: (prev, next) => prev != next,
+      builder: (context,status,c){
+        switch(status){
+          case DataStatus.initial:
+          case DataStatus.loading:
+            return const Center(child: CircularProgressIndicator());
+          case DataStatus.failure:
+            return ErrorPage(
+              onRetry: (){
+                claProv.fetchRecordList();
+              }
+            );
+          case DataStatus.success:
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      'Classroom Application',
+                      style: context.theme.textTheme.titleLarge?.copyWith(
+                        fontSize: 30.sp,
+                        fontFamily: StyleScheme.engFontFamily,
+                        letterSpacing: -0.5,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Wrap(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            'Export',
+                            style: TextStyle(
+                              fontSize: 20.sp,
+                              fontFamily: StyleScheme.engFontFamily,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+
+                          },
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            'New',
+                            style: TextStyle(
+                              fontSize: 20.sp,
+                              fontFamily: StyleScheme.engFontFamily,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: Selector<ClassroomRecordProv, int>(
+                    selector: (context, prov) => prov.recordSum,
+                    shouldRebuild: (prev, next) => true,
+                    builder: (_,__,___){
+                      return PlutoGrid(
+                        columns: columns,
+                        rows: getRows(claProv.records),
+                      );
+                    },
                   ),
                 ),
-                buttonTextStyle: TextStyle(
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: StyleScheme.engFontFamily,
+                Selector<ClassroomRecordProv, int>(
+                  selector: (context, prov) => prov.totalPage,
+                  builder: (_, totalPage, __) {
+                    return NumberPaginator(
+                      controller: controller,
+                      // by default, the paginator shows numbers as center content
+                      numberPages: totalPage,
+                      onPageChange: (int index) {
+                        claProv.setNowPage(index);
+                        claProv.fetchRecordList();
+                      },
+                      // initially selected index
+                      initialPage: claProv.nowPage,
+                      config: NumberPaginatorUIConfig(
+                        // default height is 48
+                        height: 64,
+                        buttonShape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: BorderSide(
+                            color: context.theme.colorScheme.outlineVariant,
+                            width: 0.5,
+                          ),
+                        ),
+                        buttonTextStyle: TextStyle(
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: StyleScheme.engFontFamily,
+                        ),
+                        contentPadding: EdgeInsets.all(8.sp),
+                        buttonSelectedForegroundColor: context.theme.colorScheme.onPrimary,
+                        buttonUnselectedForegroundColor: context.theme.colorScheme.onSurface,
+                        buttonUnselectedBackgroundColor: context.theme.colorScheme.surface,
+                        buttonSelectedBackgroundColor: context.theme.colorScheme.primary,
+                      ),
+                    );
+                  },
                 ),
-                contentPadding: EdgeInsets.all(8.sp),
-                buttonSelectedForegroundColor: context.theme.colorScheme.onPrimary,
-                buttonUnselectedForegroundColor: context.theme.colorScheme.onSurface,
-                buttonUnselectedBackgroundColor: context.theme.colorScheme.surface,
-                buttonSelectedBackgroundColor: context.theme.colorScheme.primary,
-              ),
+              ],
             );
-          },
-        ),
-      ],
+        }
+      }
     );
   }
 }

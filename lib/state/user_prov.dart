@@ -15,6 +15,7 @@ class UserProv extends ChangeNotifier{
   UserProv(){
     // after setToken
     token = AuthHandler.getToken();
+    print(token);
   }
 
   void setStatus(DataStatus status){
@@ -32,6 +33,5 @@ class UserProv extends ChangeNotifier{
     } else {
       setStatus(DataStatus.failure);
     }
-    notifyListeners();
   }
 }

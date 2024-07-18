@@ -1,3 +1,5 @@
+import 'package:smart_edu_tea/util/format_util.dart';
+
 class FaultReportRecord{
   DateTime reportTime;
   String campusName;
@@ -13,7 +15,7 @@ class FaultReportRecord{
     required this.building,
     required this.classroomName,
     required this.faultDesc,
-    required this.faultType,
+    this.faultType = '常规错误',
     required this.status,
   });
 
@@ -25,8 +27,12 @@ class FaultReportRecord{
       building: json['building'],
       classroomName: json['classroomName'],
       faultDesc: json['faultDesc'],
-      faultType: json['faultType'],
+      // faultType: json['faultType'],
       status: json['status'],
     );
   }
+
+  String get placeStr=> '$campusName $building $classroomName';
+
+  String get reportTimeStr => FormatUtil.ymdStr(reportTime);
 }

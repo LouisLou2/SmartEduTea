@@ -1,6 +1,6 @@
 class CourseTask {
   final int courseInstSectionId;
-  final String courseInstId;
+  final int courseInstId;
   final String courseName;
   final List<String> courseTeacherName;
   final String classroomName;

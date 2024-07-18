@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../../const/config.dart';
 import '../../state/prov_manager.dart';
 import '../../state/user_prov.dart';
+
 class NetworkConfig{
   static late UserProv userProv;
 
@@ -17,13 +18,15 @@ class NetworkConfig{
   static String _authorizationToken()=> 'Bearer ${userProv.token}';
 
   // 请求与返回类型的枚举
-  static Options get formdata_json => Options(
-    headers:{
-      'Authorization': _authorizationToken(),
-    },
-    contentType: Headers.multipartFormDataContentType,
-    responseType: ResponseType.json,
-  );
+  static Options get formdata_json {
+    return Options(
+      headers:{
+        'Authorization': _authorizationToken(),
+      },
+      contentType: Headers.formUrlEncodedContentType,
+      responseType: ResponseType.json,
+    );
+  }
 
   static Options get  json_json => Options(
     headers:{
